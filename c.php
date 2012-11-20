@@ -5,7 +5,7 @@
  * FIXME: Book information
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-18
+ * Modified: 2012-11-19
  *
  */
 
@@ -13,18 +13,28 @@
 require_once 'db-config.php';
 $conn = null;
 
-function print_product_table ($maker_name, $product_type) {
+function print_product_table ($maker_name, $product_type, $column_names = array()) {
 	// connect to the database if not done yet
 	$conn = connect_to_db();
 
 	// sanitize the input
-	$maker_name = $conn->quote($maker_name);
+	$clean_maker_name = $conn->quote($maker_name);
+
+	// if column names empty, select all by default
+	if (count($column_names) == 0) {
+		$project_list = '*';
+	} else {	
+		// otherwise build project list
+		$project_list = implode(',', array_map(function ($value) { return 'type.' . $value; }, $column_names));
+	}
 
 	// construct the query string
-	$sql = sprintf('SELECT * FROM product, %s as type WHERE maker = %s AND product.model = type.model', 
-		           $product_type, $maker_name);
+	$sql = sprintf('SELECT %s FROM product, %s as type WHERE maker = %s AND product.model = type.model', 
+		           $project_list, $product_type, $clean_maker_name);
 
+	// fetch each row as a dictionary indexed by column name
 	$products = $conn->query($sql, PDO::FETCH_ASSOC);
+
 	$header_printed = false;
 
 	// if results found
@@ -119,10 +129,9 @@ if (isset($_POST['maker'])) {
 <?php
 	if (isset($maker_name)) {
 		echo sprintf('<h2>Products From %s:</h2>', $maker_name);
-
-		foreach (array('pc', 'laptop', 'printer') as $product_type) {
-			print_product_table($maker_name, $product_type);
-		}
+		print_product_table($maker_name, 'pc', array('model', 'speed', 'ram', 'hd', 'price'));
+		print_product_table($maker_name, 'laptop', array('model', 'speed', 'ram', 'screen', 'hd', 'price'));
+		print_product_table($maker_name, 'printer', array('model', 'color', 'type', 'price'));
 	} else {
 		echo '<p>Please select a manufacturer from the form above to see their products.</p>';
 	}
