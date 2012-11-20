@@ -12,49 +12,64 @@
 
 // import the database connection information
 require_once 'db-config.php';
+$conn = null;
 
-try {
-    // connect to the database
-	$dbh = new PDO($db_connection_string, DB_USER, DB_PASS);
+function connect_to_db () {
+	global $conn;
+	global $db_connection_string;
 
-	$result = $dbh->query('SELECT * FROM product');
-	echo "Query found " . $result->rowCount() . " rows.\n";
+	if (!is_null($conn))
+		return $conn;
 
-	// set up manufacturer pull-down list
-		// select distinct maker from product order by maker
-		// how to handle new maker?
+	try {
+	    // connect to the database
+		$conn = new PDO($db_connection_string, DB_USER, DB_PASS);
+	} catch (PDOException $e) {
+	  echo "Database exception: " . $e->getMessage() . "\n";
+	  die;
+	}
 
-	// get a bunch of stuff from the post array
-
-	// start a transaction
-
-	// try to find a product with the given model number
-	// select count(model) from product where model = $model_num;
-
-	// if count is not zero, abort the transaction, report an error
-		// store error message in session
-		// repopulate form with POST data
-
-	// if count is zero
-		// insert data into the product table
-		// insert into product (maker, model, type) values ($maker, $model_num, $type)
-		// fixme: catch exception?
-
-		// insert data into the pc table
-		// insert into pc (model, speed, ram, hd, price) values ($model_num, $speed, $ram, $hd, $price)
-		// fixme: catch exception?
-
-		// commit transaction
-
-		// store success message in session
-		// go back to form
-
-    // closes the connection
-	$dbh = null;
-} catch (PDOException $e) {
-  echo "Database exception: " . $e->getMessage() . "\n";
-  die;
+	return $conn;
 }
+
+function disconnect_from_db () {
+	global $conn;
+	$conn = null;
+}
+
+
+/* Entry Point */
+
+// Get the form input
+
+// set up manufacturer pull-down list
+	// select distinct maker from product order by maker
+	// how to handle new maker?
+
+// get a bunch of stuff from the post array
+
+// start a transaction
+
+// try to find a product with the given model number
+// select count(model) from product where model = $model_num;
+
+// if count is not zero, abort the transaction, report an error
+	// store error message in session
+	// repopulate form with POST data
+
+// if count is zero
+	// insert data into the product table
+	// insert into product (maker, model, type) values ($maker, $model_num, $type)
+	// fixme: catch exception?
+
+	// insert data into the pc table
+	// insert into pc (model, speed, ram, hd, price) values ($model_num, $speed, $ram, $hd, $price)
+	// fixme: catch exception?
+
+	// commit transaction
+
+	// store success message in session
+	// go back to form
 ?>
 <!doctype html>
 <html lang="en">
