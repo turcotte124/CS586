@@ -152,7 +152,7 @@ if (isset($_POST['minspeed'])) {
 		<label for="minspeed">Minumum CPU Speed</label>
 		<input type="text" name="minspeed" value="<?php echo $min_speed; ?>"/>
 
-		<input type="submit"/>
+		<input type="submit" value="Find System"/>
 	</form>
 
 	<hr/>

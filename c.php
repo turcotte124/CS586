@@ -121,7 +121,7 @@ if (isset($_POST['maker'])) {
 		$makers->closeCursor();
 ?>			
 		</select>
-		<input type="submit"/>
+		<input type="submit" value="Show Products"/>
 	</form>
 
 	<hr/>
