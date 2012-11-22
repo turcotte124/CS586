@@ -15,8 +15,13 @@ require_once 'db-config.php';
 
 // Attempt to connect to the database
 try {
+	// create DB connection object
 	$conn = new PDO($db_connection_string, DB_USER, DB_PASS);
+
+	// throw exceptions when errors occur
 	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	// fetch rows as associative arrays (dictionaries)
 	$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   echo "Database exception: " . $e->getMessage() . "\n";
@@ -106,63 +111,100 @@ $conn = null;
 <head>
   <meta charset="utf-8">
   <title>Add a New PC</title>
-  <!-- link rel="stylesheet" href="css/styles.css?v=1.0" -->
+  <link rel="stylesheet" href="css/bootstrap.css">
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 </head>
 <body>
+	<div class="row">
+		<div class="offset2 span8">
 <?php
-	// Report result of form submission
+			// Report result of form submission
 
-	// transaction was successful
-	if ($success) {
-		printf('<div class="text-success">Added product %s.</div>', $added_model);
-	}
+			// transaction was successful
+			if ($success) {
+				printf('<div class="text-success">Added product %s.</div>', $added_model);
+			}
 
-	// duplicate model number found
-	if ($duplicate) {
-		printf('<div class="text-warning">Please change the model number. %s is a duplicate.</div>', $model);
-	}
+			// duplicate model number found
+			if ($duplicate) {
+				printf('<div class="text-warning">Please change the model number. %s is a duplicate.</div>', $model);
+			}
 
-	// exception occurred in transaction portion
-	if (!empty($transaction_failure)) {
-		printf('<div class="text-failure">%s</div>', $transaction_failure);
-	}
-?>
-
-	<h2>Add a New Product</h2>
-
-	<form action="e.php" method="post">
-		<label for="maker">Manufacturer</label>
-		<select name="maker">
-<?php
-			foreach ($maker_list as $maker_row) {
-				$selected = ($maker_row['maker'] == $maker) ? 'selected="selected"' : '';
-				printf('<option value="%s" %s>%s</option>', $maker_row['maker'], 
-					$selected, $maker_row['maker']);
+			// exception occurred in transaction portion
+			if (!empty($transaction_failure)) {
+				printf('<div class="text-failure">%s</div>', $transaction_failure);
 			}
 ?>
-		</select>
-		<label for="new_maker">New Manufacturer</label>
-		<input type="text" name="new_maker" value="<?php echo $new_maker; ?>"/>
 
-		<label for="model">Model Number</label>
-		<input type="text" name="model" value="<?php echo $model; ?>"/>
+			<h2>Add a New Product</h2>
 
-		<label for="speed">CPU Speed</label>
-		<input type="text" name="speed" value="<?php echo $speed; ?>"/>
+			<form action="e.php" method="post" class="form-horizontal">
+				<div class="control-group">
+					<label for="makerList" class="control-label">Manufacturer</label>
+					<div class="controls">
+						<select id="makerList" name="maker">
+<?php
+						// construct the drop-down list of makers from databse results
+						foreach ($maker_list as $maker_row) {
+							$selected = ($maker_row['maker'] == $maker) ? 'selected="selected"' : '';
+							printf('<option value="%s" %s>%s</option>', $maker_row['maker'], 
+								$selected, $maker_row['maker']);
+						}
+?>
+						</select>
+					</div>
+				</div>
 
-		<label for="ram">RAM in MB</label>
-		<input type="text" name="ram" value="<?php echo $ram; ?>"/>
+				<div class="control-group">
+					<label for="newMakerField" class="control-label">New Manufacturer</label>
+					<div class="controls">
+						<input type="text" id="newMakerField" name="new_maker" value="<?php echo $new_maker; ?>"/>
+					</div>
+				</div>
 
-		<label for="hd">HD Size in GB</label>
-		<input type="text" name="hd" value="<?php echo $hd; ?>"/>
+				<div class="control-group">
+					<label for="modelField" class="control-label">Model Number</label>
+					<div class="controls">
+						<input type="text" id="modelField" name="model" value="<?php echo $model; ?>"/>
+					</div>
+				</div>
 
-		<label for="price">Price</label>
-		<input type="text" name="price" value="<?php echo $price; ?>"/>
+				<div class="control-group">
+					<label for="speedField" class="control-label">CPU Speed</label>
+					<div class="controls">
+						<input type="text" id="speedField" name="speed" value="<?php echo $speed; ?>"/>
+					</div>
+				</div>
 
-		<input type="submit" value="Add Product"/>
-	</form>
+				<div class="control-group">
+					<label for="ramField" class="control-label">RAM in MB</label>
+					<div class="controls">
+						<input type="text" name="ramField" value="<?php echo $ram; ?>"/>
+					</div>
+				</div>
+
+				<div class="control-group">
+					<label for="hdField" class="control-label">HD Size in GB</label>
+					<div class="controls">
+						<input type="text" id="hdField" name="hd" value="<?php echo $hd; ?>"/>
+					</div>
+				</div>
+
+				<div class="control-group">
+					<label for="priceField" class="control-label">Price</label>
+					<div class="controls">
+						<input type="text" id="priceField" name="price" value="<?php echo $price; ?>"/>
+					</div>
+				</div>
+
+				<div class="controls">
+					<input type="submit" value="Add Product" class="btn btn-primary"/>
+				</div>
+			</form>
+			</div>
+	</div>
+
 </body>
 </html>

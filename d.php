@@ -58,7 +58,7 @@ function print_pc_details ($pc_model) {
 
 	$stmt->closeCursor();
 ?>
-	<table>
+	<table class="table">
 		<tr><th>Maker</th><th>Model #</th><th>CPU Ghz</th><th>RAM</th><th>HD</th><th>Price</th></tr>
 		<tr><?php echo $row_text; ?></tr>
 	</table>
@@ -66,7 +66,6 @@ function print_pc_details ($pc_model) {
 }
 
 function print_printer_details ($printer_model) {
-	print "<p>Printer model: $printer_model</p>";
 	$conn = connect_to_db();
 
 	$sql = 'SELECT maker, printer.model AS model, color, printer.type AS type, price ' .
@@ -74,7 +73,6 @@ function print_printer_details ($printer_model) {
 	       'product.model = printer.model';
 
 	$stmt = $conn->prepare($sql);
-	$stmt->setFetchMode(PDO::FETCH_ASSOC);
 
 	$stmt->execute(array(':model_num' => $printer_model));
 	$row = $stmt->fetch();
@@ -86,7 +84,7 @@ function print_printer_details ($printer_model) {
 
 	$stmt->closeCursor();
 ?>
-	<table>
+	<table class="table">
 		<tr><th>Maker</th><th>Model #</th><th>Color</th><th>Type</th><th>Price</th></tr>
 		<tr><?php echo $row_text; ?></tr>
 	</table>
@@ -103,6 +101,12 @@ function connect_to_db () {
 	try {
 	    // connect to the database
 		$conn = new PDO($db_connection_string, DB_USER, DB_PASS);
+
+		// throw exceptions when errors occur
+		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		// fetch rows as associative arrays (dictionaries)
+		$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 	} catch (PDOException $e) {
 	  echo "Database exception: " . $e->getMessage() . "\n";
 	  die;
@@ -139,23 +143,42 @@ if (isset($_POST['minspeed'])) {
 <head>
   <meta charset="utf-8">
   <title>Find a System That Fits Your Budget</title>
-  <!-- link rel="stylesheet" href="css/styles.css?v=1.0" -->
+  <link rel="stylesheet" href="css/bootstrap.css">
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 </head>
 <body>
-	<form action="d.php" method="post">
-		<label for="budget">Budget</label>
-		<input type="text" name="budget" value="<?php echo $budget; ?>"/>
+	<div class="row">
+		<div class="offset2 span8">
+			<h2>Find the Best System For Your Budget</h2>
 
-		<label for="minspeed">Minumum CPU Speed</label>
-		<input type="text" name="minspeed" value="<?php echo $min_speed; ?>"/>
+			<form action="d.php" method="post" class="form-horizontal">
+				<div class="control-group">
+					<label for="speedField" class="control-label">Minumum CPU Speed</label>
+					<div class="controls">
+						<input type="text" id="speedField" name="minspeed" value="<?php echo $min_speed; ?>"/>
+					</div>
+				</div>
 
-		<input type="submit" value="Find System"/>
-	</form>
+				<div class="control-group">
+					<label for="budgetField" class="control-label">Budget</label>
+					<div class="controls">
+						<input type="text" id="budgetField" name="budget" value="<?php echo $budget; ?>"/>
+					</div>
+				</div>
 
-	<hr/>
+				<div class="controls">
+					<button type="submit" class="btn btn-primary">Find System</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<hr class="offset1 span10"/>
+
+	<div class="row">
+		<div class="offset2 span8">
 
 <?php
 	if (!empty($budget) && !empty($min_speed)) {
@@ -178,19 +201,17 @@ if (isset($_POST['minspeed'])) {
 				}
 			}
 
-			print '<h2>Details for Your System</h2>';
+			print '<h3>Your Best System: $' . $best_found['total'] . '</h3>';
+			print '<div class="offset1">';
 
-			print '<h3>PC Details</h3>';
+			print '<h4>PC Details</h4>';
 			print_pc_details($best_found['cmodel']);
 
-			print '<h3>Printer Details</h3>';
+			print '<h4>Printer Details</h4>';
 			print_printer_details($best_found['pmodel']);
-
-			print '<p>Total Cost: $' . $best_found['total'] . '</p>';
+			print '</div>';
 		} else {
-?>
-			<p>No systems were found matching your criteria.</p>
-<?php
+			print '<p>No systems were found matching your criteria.</p>';
 		}
 
 		$systems->closeCursor();
@@ -198,5 +219,7 @@ if (isset($_POST['minspeed'])) {
 
 	disconnect_from_db();
 ?>
+		</div>
+	</div>
 </body>
 </html>
