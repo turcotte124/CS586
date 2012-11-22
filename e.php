@@ -1,9 +1,11 @@
 <?php
-/* e.php: Implements Exercise 9.3.1 (e). (FIXME book info). Asks the user for a
- * model number, speed, amount of RAM, hard disk size, and price for a new PC.
- * Checks if a PC with the given model number exists, and if not it inserts a
- * new PC with the given properties. Gives an error if the model number already
- * exists.
+/* e.php: Implements Exercise 9.3.1 (e) from "Database Systems: The Complete Book",
+ * 2nd ed. by Garcia-Mollina, Ullman, and Widom.
+ *
+ * Asks the user for a product model number, speed, amount of RAM, hard disk size,
+ * and price for a new PC. Checks if a PC with the given model number exists, 
+ * and if not it inserts a new PC with the given properties. Gives an error if 
+ * the model number already exists.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
  * Modified: 2012-11-20

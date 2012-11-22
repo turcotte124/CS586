@@ -1,9 +1,10 @@
 <?php
-/* c.php: Implements Exercise 9.3.1 (c). Given a manufacturer name, it lists
- * the specifications of all the products manufactured by that manufacturer.
- * 
- * FIXME: Book information
+/* c.php: Implements Exercise 9.3.1 (c) from "Database Systems: The Complete Book",
+ * 2nd ed. by Garcia-Mollina, Ullman, and Widom.
  *
+ * Given a manufacturer name, it lists the specifications of all the products 
+ * manufactured by that manufacturer.
+ * 
  * Author:   Heath Harrelson <harrel2@pdx.edu>
  * Modified: 2012-11-20
  *
@@ -13,7 +14,14 @@
 require_once 'db-config.php';
 $conn = null;
 
+/* connect_to_db(): Attempts to connect to the databae by constructing
+ * a PDO object. See db-config.php for construction of the connection
+ * string / data source name.
+ *
+ * Returns: A connection to the database.
+ */
 function connect_to_db () {
+	// use these variables outside the function
 	global $conn;
 	global $db_connection_string;
 
@@ -37,11 +45,20 @@ function connect_to_db () {
 	return $conn;
 }
 
+/* disconnect_from_db(): Sets the database connection to null so it closes. */
 function disconnect_from_db () {
 	global $conn;
 	$conn = null;
 }
 
+/* print_product_table: Generates an HTML table listing the specs of items
+ * of type $product_type manufactured by $maker_name.
+ *
+ * Params:
+ *  - $maker_name:   A manufacturer name from the product table.
+ *  - $product_type: One of 'pc', 'laptop', or 'printer'.
+ *  - $column_names: The columns from the table $product_type we want printed.
+ */
 function print_product_table ($maker_name, $product_type, $column_names = array()) {
 	// connect to the database if not done yet
 	$conn = connect_to_db();
@@ -63,6 +80,7 @@ function print_product_table ($maker_name, $product_type, $column_names = array(
 	$sql = sprintf('SELECT %s FROM product, %s as type WHERE maker = %s AND product.model = type.model', 
 		           $project_list, $product_type, $clean_maker_name);
 
+	// execute the query, getting a PDOStatement object
 	$products = $conn->query($sql);
 
 	// special-case capitalization of PC
@@ -70,7 +88,7 @@ function print_product_table ($maker_name, $product_type, $column_names = array(
 
 	$header_printed = false;
 
-	// if results found
+	// if we found any results
 	if ($products->rowCount() > 0) {
 		printf('<h4>%ss from %s</h4>', ucfirst($product_type), $maker_name);
 		print '<table class="table table-striped">';
@@ -100,7 +118,7 @@ function print_product_table ($maker_name, $product_type, $column_names = array(
 	}
 }
 
-/* Main Code */
+/* Main Code Entry Point */
 
 // get maker from $POST array if the form was submitted
 if (isset($_POST['maker'])) {
