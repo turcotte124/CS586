@@ -1,0 +1,8 @@
+/* custom.css: Custom CSS rules to override the body margin
+ * from bootstrap.css.
+ */
+
+ body {
+ 	margin: 1em;
+ }
+ 
