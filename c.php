@@ -134,6 +134,7 @@ if (isset($_POST['maker'])) {
   <meta charset="utf-8">
   <title>Product Listing</title>
   <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/custom.css">
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->

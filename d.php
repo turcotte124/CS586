@@ -189,6 +189,7 @@ if (isset($_POST['minspeed'])) {
   <meta charset="utf-8">
   <title>Find a System That Fits Your Budget</title>
   <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/custom.css">
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
