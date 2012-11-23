@@ -166,18 +166,26 @@ function print_printer_details ($printer_model) {
 
 /* Main Code Entry Point */
 
+$errors = array();
+
 // If the user submitted the form, get their input from the environment
 
 if (isset($_POST['budget'])) {
 	$budget = $_POST['budget'];
-	// FIXME check is_numeric()
+
+	if (!is_numeric($budget)) {
+		$errors[] = 'Budget should be a number.';
+	}
 } else {
 	$budget = "";
 }
 
 if (isset($_POST['minspeed'])) {
 	$min_speed = $_POST['minspeed'];
-	// FIXME check is_numeric()
+
+	if (!is_numeric($min_speed)) {
+		$errors[] = 'Minimum speed should be a number (e.g. 3.2).';
+	}
 } else {
 	$min_speed = "";
 }
@@ -200,6 +208,21 @@ if (isset($_POST['minspeed'])) {
 			<h2>Find the Best System For Your Budget</h2>
 
 			<form action="d.php" method="post" class="form-horizontal">
+				
+<?php
+			// Let the user know about input errors
+			if (!empty($errors)) {
+				print '<div class="alert alert-error">';
+				print '<h3>There were some problems with your input:</h3>';
+
+				foreach ($errors as $error_str) {
+					print '<p>' . $error_str . '</p>';
+				}
+
+				print '</div>';
+			}
+?>
+
 				<div class="control-group">
 					<label for="speedField" class="control-label">Minumum CPU Speed</label>
 					<div class="controls">
