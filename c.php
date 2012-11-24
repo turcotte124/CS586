@@ -6,7 +6,7 @@
  * manufactured by that manufacturer.
  * 
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-20
+ * Modified: 2012-11-24
  *
  */
 
@@ -23,14 +23,14 @@ $conn = null;
 function connect_to_db () {
 	// use these variables outside the function
 	global $conn;
-	global $db_connection_string;
+	global $pdo_connection_string;
 
 	if (!is_null($conn))
 		return $conn;
 
 	try {
 	    // connect to the database
-		$conn = new PDO($db_connection_string, DB_USER, DB_PASS);
+		$conn = new PDO($pdo_connection_string, DB_USER, DB_PASS);
 
 		// throw exceptions when errors occur
 		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
