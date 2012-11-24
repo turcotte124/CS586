@@ -8,7 +8,7 @@
  * products selected.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-20
+ * Modified: 2012-11-23
  *
  */
 
