@@ -2,8 +2,13 @@
 /* injection.php: Demonstrates SQL injection and how prepared statements, with their
  * automatic input escaping, avoid it.
  *
+ * The PDO database abstraction library used in other files wraps all SQL state-
+ * ments in a prepared statement, which prevents this kind of attack. PostgreSQL
+ * will not allow prepared statements that contain a semicolon, so the attempt
+ * at injecting SQL will fail.
+ *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-23
+ * Modified: 2012-11-24
  *
  */
 
@@ -11,7 +16,7 @@
 require_once 'db-config.php';
 $conn = null;
 
-/* connect_to_db(): Attempts to connect to the databae by constructing
+/* connect_to_db(): Attempts to connect to the database by constructing
  * a PDO object. See db-config.php for construction of the connection
  * string / data source name.
  *
@@ -20,23 +25,15 @@ $conn = null;
 function connect_to_db () {
 	// use these variables outside the function
 	global $conn;
-	global $db_connection_string;
+	global $raw_connection_string;
 
 	if (!is_null($conn))
 		return $conn;
 
-	try {
-	    // connect to the database
-		$conn = new PDO($db_connection_string, DB_USER, DB_PASS);
+	$conn = pg_connect($raw_connection_string);
 
-		// throw exceptions when errors occur
-		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-		// fetch rows as associative arrays (dictionaries)
-		$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-	} catch (PDOException $e) {
-	  echo "Database exception: " . $e->getMessage() . "\n";
-	  die;
+	if (!$conn) {
+		die('Could not connect to the database.');
 	}
 
 	return $conn;
@@ -45,6 +42,7 @@ function connect_to_db () {
 /* disconnect_from_db(): Sets the database connection to null so it closes. */
 function disconnect_from_db () {
 	global $conn;
+	pg_close($conn);
 	$conn = null;
 }
 
@@ -118,44 +116,49 @@ if (!empty($_POST)) {
 	if (!empty($budget)) {
 		$conn = connect_to_db();
 
-		try {
-			$stmt = null;
+		$result = null;
+		$errors = array();
 
-			if ($form_name == 'bad') {
-				print '<div class="alert alert-warn">Unsanitized input will be used.</div>';
+		if ($form_name == 'bad') {
+			print '<div class="alert alert-warn">Unsanitized input will be used.</div>';
 
-				// construct the SQL using string concatenation; note that we 
-				// haven't escaped $budget with $conn->quote()
-				$sql = 'SELECT model, speed, price FROM pc WHERE price <= ' . $budget;
+			// construct the SQL using string concatenation; note that we 
+			// haven't escaped $budget with pg_escape_literal().
+			$sql = 'SELECT model, speed, price FROM pc WHERE price <= ' . $budget;
 
-				// execute the query and get results
-				$stmt = $conn->query($sql);
-			} else {
-				print '<div class="alert alert-success">Sanitized input will be used.</div>';
-				// construct a prepared statement
-				$stmt = $conn->prepare('SELECT model, speed, price FROM pc WHERE price <= :budget');
+			// attempt to execute the query and get results
+			$result = pg_query($conn, $sql);
+		} else {
+			print '<div class="alert alert-success">Sanitized input will be used.</div>';
+			// construct a prepared statement
+			$sql = 'SELECT model, speed, price FROM pc WHERE price <= $1';
+			$result = pg_prepare($conn, 'pc_price_query', $sql);
 
-				// bind the statement parameters, which automatically escapes the input
-				$stmt->bindParam(':budget', $budget);
-
-				// execute the query and get results
-				$stmt->execute();
+			// only query if statement prepared successfully
+			if ($result) {
+				$result = pg_execute($conn, 'pc_price_query', array($budget));
 			}
+		}
 
-			if ($stmt->rowCount() > 0) {
+		if ($result) {
+			// print '<p>Query status: ' . pg_result_status($result, PGSQL_STATUS_STRING) . '</p>'; // DEBUG
+
+			if (pg_num_rows($result) > 0) {
 				print '<h2>PCs Under $' . $budget . '</h2>';
 
 				print '<table class="table table-striped">';
 				print '<tr><th>Model</th><th>Speed (Ghz)</th><th>Price</th></tr>';
-				while ($row = $stmt->fetch()) {
+				while ($row = pg_fetch_assoc($result)) {
 					print '<tr><td>' . $row['model'] . '</td><td>' . $row['speed'] .
 					      '</td><td>' . $row['price'] . '</td></tr>';
 				}
 			} else {
 				print '<p>No PCs under $' . $budget . ' were found.</p>';
 			}
-		} catch (PDOException $e) {
-			print '<div class="alert alert-error">' . $e->getMessage() . '</div>';
+		} else {
+			// pg_query(), pg_prepare(), or pg_execute() returned false.
+			// print a description of what went wrong.
+			print '<div class="alert alert-error">' . pg_last_error($conn) . '</div>';
 		}
 
 		disconnect_from_db();
