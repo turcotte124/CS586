@@ -174,7 +174,9 @@ if (isset($_POST['budget'])) {
 	$budget = $_POST['budget'];
 
 	if (!is_numeric($budget)) {
-		$errors[] = 'Budget should be a number.';
+		$errors[] = 'Budget should be an integer.';
+	} else {
+		$budget = intval($budget);
 	}
 } else {
 	$budget = "";
