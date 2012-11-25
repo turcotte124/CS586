@@ -1,11 +1,17 @@
 <?php
-/* injection.php: Demonstrates SQL injection and how prepared statements, with their
- * automatic input escaping, avoid it.
+/* injection.php: Demonstrates SQL injection.
  *
  * The PDO database abstraction library used in other files wraps all SQL state-
  * ments in a prepared statement, which prevents this kind of attack. PostgreSQL
  * will not allow prepared statements that contain a semicolon, so the attempt
  * at injecting SQL will fail.
+ *
+ * The following code uses the raw pg_* database driver functions to demonstrate
+ * the danger of not validating your application's input. The unsecure version of
+ * the form constructs its SQL query using string concatenation without doing any
+ * type validation or other checks for SQL injection, whereas the secure version
+ * of the form uses pg_send_query_params() to insure that types are checked and
+ * the SQL contains only a single SQL statement.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
  * Modified: 2012-11-24
@@ -50,7 +56,7 @@ function disconnect_from_db () {
 
 $inject_text = '500;UPDATE pc SET price = 0 WHERE model = 1001;--';
 
-// collect the form input and set variables
+// Collect the form input and set variables.
 if (!empty($_POST)) {
 	$budget = isset($_POST['budget']) ? $_POST['budget'] : '';
 	$form_name  = isset($_POST['form_name']) ? $_POST['form_name'] : 'good';
@@ -76,7 +82,8 @@ if (!empty($_POST)) {
 
 			<h3>Sanitized Input</h3>
 
-			<p>This form sanitizes its input using a prepared statement.</p>
+			<p>This form prevents SQL injection by constructing its query in a
+				way that insures that the types of its parameters are correct.</p>
 
 			<form action="injection.php" method="post" class="form-horizontal">
 				<input type="hidden" name="form_name" value="good"/>
@@ -92,7 +99,7 @@ if (!empty($_POST)) {
 			<h3>Dangerous Input</h3>
 
 			<p>This form simply substitutes its input into the SQL without
-				sanitizing it first, allowing for SQL injection.</p>
+				validating it first, allowing for SQL injection.</p>
 
 			<form action="injection.php" method="post" class="form-horizontal">
 				<input type="hidden" name="form_name" value="bad"/>
@@ -119,30 +126,42 @@ if (!empty($_POST)) {
 		$result = null;
 		$errors = array();
 
+		// Vary how we construct the query based on the form used.
 		if ($form_name == 'bad') {
 			print '<div class="alert alert-warn">Unsanitized input will be used.</div>';
 
-			// construct the SQL using string concatenation; note that we 
-			// haven't escaped $budget with pg_escape_literal().
+			// Construct the SQL using string concatenation; note that we 
+			// haven't validated that $budget is an integer or restricted the
+			// query to a single statement in any way.
 			$sql = 'SELECT model, speed, price FROM pc WHERE price <= ' . $budget;
 
 			// attempt to execute the query and get results
-			$result = pg_query($conn, $sql);
+			if (pg_send_query($conn, $sql)) {
+				$result = pg_get_result($conn);
+			} else {
+				$errors[] = 'Could not dispatch query request.';
+			}
 		} else {
 			print '<div class="alert alert-success">Sanitized input will be used.</div>';
-			// construct a prepared statement
-			$sql = 'SELECT model, speed, price FROM pc WHERE price <= $1';
-			$result = pg_prepare($conn, 'pc_price_query', $sql);
 
-			// only query if statement prepared successfully
-			if ($result) {
-				$result = pg_execute($conn, 'pc_price_query', array($budget));
+			// $1 here is a placeholder for the prepared statement's parameter
+			$sql = 'SELECT model, speed, price FROM pc WHERE price <= $1';
+
+			// Unlike pg_send_query(), pg_send_query_params() makes sure that its
+			// parameters are the right type and that the query contains only one
+			// SQL statement (i.e. has no semicolons).
+			//
+			// Using a prepared statement with pg_send_prepare() and pg_send_execute()
+			// would have the same effect.
+			if (pg_send_query_params($conn, $sql, array($budget))) {
+				$result = pg_get_result($conn);
+			} else {
+				$errors[] = 'Could not dispatch query request.';
 			}
 		}
 
-		if ($result) {
-			// print '<p>Query status: ' . pg_result_status($result, PGSQL_STATUS_STRING) . '</p>'; // DEBUG
-
+		if ($result && !pg_result_error($result)) {
+			// The query was successful. Print out the result set.
 			if (pg_num_rows($result) > 0) {
 				print '<h2>PCs Under $' . $budget . '</h2>';
 
@@ -156,9 +175,22 @@ if (!empty($_POST)) {
 				print '<p>No PCs under $' . $budget . ' were found.</p>';
 			}
 		} else {
-			// pg_query(), pg_prepare(), or pg_execute() returned false.
-			// print a description of what went wrong.
-			print '<div class="alert alert-error">' . pg_last_error($conn) . '</div>';
+			// pg_send_query() returned false, or pg_result_error() was true.
+			// Print out the errors.
+			print '<div class="alert alert-error">';
+			print '<h3>There were some problems with your query:</h3>';
+
+			// Deal with the case where pg_send_query() failed.
+			foreach ($errors as $error_str) {
+				print '<p>' . $error_str . '</p>';
+			}
+
+			// Deal with the case where the query was unsuccessful.
+			if ($result && pg_result_error($result)) {
+				print '<p>' . pg_result_error($result) . '</p>';
+			}
+
+			print '</div>';
 		}
 
 		disconnect_from_db();
