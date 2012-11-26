@@ -14,7 +14,7 @@
  * the SQL contains only a single SQL statement.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-24
+ * Modified: 2012-11-25
  *
  */
 
@@ -76,6 +76,7 @@ if (!empty($_POST)) {
 </head>
 <body>
 	<div class="row">
+		<?php include 'navigation.php'; ?>
 		<div class="offset2 span8">
 
 			<h2>Search for PCs</h2>
@@ -114,10 +115,10 @@ if (!empty($_POST)) {
 		</div>
 	</div>
 
-	<hr class="offset1 span10"/>
+	<hr class="offset2 span10"/>
 
 	<div class="row">
-		<div class="offset2 span8">
+		<div class="offset3 span8">
 
 <?php
 	if (!empty($budget)) {

@@ -8,7 +8,7 @@
  * the model number already exists.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-24
+ * Modified: 2012-11-25
  *
  */
 
@@ -227,6 +227,7 @@ disconnect_from_db();
 </head>
 <body>
 	<div class="row">
+		<?php include 'navigation.php'; ?>
 		<div class="offset2 span8">
 <?php
 			// report successful form submission
@@ -236,7 +237,7 @@ disconnect_from_db();
 			}
 ?>
 
-			<h2>Add a New Product</h2>
+			<h2>Add a New PC</h2>
 
 			<form action="e.php" method="post" class="form-horizontal">
 <?php
