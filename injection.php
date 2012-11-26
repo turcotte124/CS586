@@ -59,6 +59,13 @@ $inject_text = '500;UPDATE pc SET price = 0 WHERE model = 1001;--';
 // Collect the form input and set variables.
 if (!empty($_POST)) {
 	$budget = isset($_POST['budget']) ? $_POST['budget'] : '';
+
+	// Limits the demo so users can't do random damage to my database.
+	// The bugdet must either be numeric or the expected injection.
+	if (!is_numeric($budget) && $budget != $inject_text) {
+		$budget = $inject_text;
+	}
+
 	$form_name  = isset($_POST['form_name']) ? $_POST['form_name'] : 'good';
 }
 
