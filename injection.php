@@ -14,7 +14,7 @@
  * the SQL contains only a single SQL statement.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-25
+ * Modified: 2012-11-27
  *
  */
 
@@ -119,6 +119,8 @@ if (!empty($_POST)) {
 					</div>
 				</div>
 			</form>
+
+			<p><a href="reset-injection.php">Reset Injection Demo</a></p>
 		</div>
 	</div>
 

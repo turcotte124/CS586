@@ -2,7 +2,7 @@
 /* navigation.php: Shared navbar code.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-25
+ * Modified: 2012-11-27
  *
  */
 ?>
@@ -15,6 +15,7 @@
 					<li><a href="d.php">Find a PC and Printer</a></li>
 					<li><a href="e.php">Add a New PC</a></li>
 					<li><a href="injection.php">SQL Injection Demo</a></li>
+					<li><a href="reset-injection.php">Reset SQL Injection Demo</a></li>
 				</ul>
 			</nav>
 		</div>
