@@ -6,7 +6,7 @@
  * manufactured by that manufacturer.
  * 
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-24
+ * Modified: 2012-11-25
  *
  */
 
@@ -141,7 +141,9 @@ if (isset($_POST['maker'])) {
 </head>
 <body>
 	<div class="row">
-		<div class="offset2 span8">
+		<?php include 'navigation.php'; ?>
+
+		<div class="offset1 span7">
 
 			<h2>Get All Products By a Manufacturer</h2>
 
@@ -168,10 +170,10 @@ if (isset($_POST['maker'])) {
 		</div>
 	</div>
 
-	<hr class="offset1 span10"/>
+	<hr class="offset2 span9"/>
 
 	<div class="row">
-		<div class="offset2 span8">
+		<div class="offset3 span7">
 
 <?php
 	if (isset($maker_name)) {

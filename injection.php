@@ -14,7 +14,7 @@
  * the SQL contains only a single SQL statement.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-24
+ * Modified: 2012-11-27
  *
  */
 
@@ -59,6 +59,13 @@ $inject_text = '500;UPDATE pc SET price = 0 WHERE model = 1001;--';
 // Collect the form input and set variables.
 if (!empty($_POST)) {
 	$budget = isset($_POST['budget']) ? $_POST['budget'] : '';
+
+	// Limits the demo so users can't do random damage to my database.
+	// The bugdet must either be numeric or the expected injection.
+	if (!is_numeric($budget) && $budget != $inject_text) {
+		$budget = $inject_text;
+	}
+
 	$form_name  = isset($_POST['form_name']) ? $_POST['form_name'] : 'good';
 }
 
@@ -76,6 +83,7 @@ if (!empty($_POST)) {
 </head>
 <body>
 	<div class="row">
+		<?php include 'navigation.php'; ?>
 		<div class="offset2 span8">
 
 			<h2>Search for PCs</h2>
@@ -111,13 +119,15 @@ if (!empty($_POST)) {
 					</div>
 				</div>
 			</form>
+
+			<p><a href="reset-injection.php">Reset Injection Demo</a></p>
 		</div>
 	</div>
 
-	<hr class="offset1 span10"/>
+	<hr class="offset2 span10"/>
 
 	<div class="row">
-		<div class="offset2 span8">
+		<div class="offset3 span8">
 
 <?php
 	if (!empty($budget)) {

@@ -8,7 +8,7 @@
  * products selected.
  *
  * Author:   Heath Harrelson <harrel2@pdx.edu>
- * Modified: 2012-11-24
+ * Modified: 2012-11-25
  *
  */
 
@@ -206,6 +206,7 @@ if (isset($_POST['minspeed'])) {
 </head>
 <body>
 	<div class="row">
+		<?php include 'navigation.php'; ?>
 		<div class="offset2 span8">
 			<h2>Find the Best System For Your Budget</h2>
 
