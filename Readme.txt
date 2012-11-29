@@ -1,3 +1,10 @@
+This project was created to demonstrate database access via PHP's PHP Data
+Objects (PDO) library to students in the fall 2012 offering of Portland
+State University's CS 386 / 586 course. It contains several small demo pages
+that show how to query a database using PDO and iterate over the results,
+how to make changes to the database (inserts), how to explicitly issue
+transactions, and a demonstration of the perils of SQL injection.
+
 = Implementation =
 
 With the exception of injection.php, all of the PHP scripts use the PHP Data
