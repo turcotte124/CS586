@@ -42,6 +42,8 @@ PHP PostgreSQL Database Extentions: http://www.php.net/manual/en/book.pgsql.php
 
  navigation.php: Shared navigation sidebar code included into other pages.
 
+ pcs-dump.sql: A dump of the database schema and data used.
+
 = Setting Up Web Access =
 
 The CAT provides web hosting for CS students. The server supports code written
